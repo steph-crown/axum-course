@@ -15,6 +15,8 @@ struct GetLoveParams {
   name: Option<String>,
 }
 
+pub mod error;
+
 #[tokio::main]
 async fn main() {
   const PORT: u16 = 3000;
