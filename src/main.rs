@@ -15,13 +15,16 @@ struct GetLoveParams {
   name: Option<String>,
 }
 
-pub mod error;
+mod error;
+mod web;
+pub use self::error::{Error, Result};
 
 #[tokio::main]
 async fn main() {
   const PORT: u16 = 3000;
   let app = Router::new()
     .merge(routes_hello())
+    .merge(web::routes_login::routes())
     .fallback_service(routes_static());
 
   // region: --- Start server
@@ -68,6 +71,5 @@ async fn get_love_path(
 }
 
 fn routes_static() -> ServeDir {
-  // Router::new().nest_service("/", get_service(ServeDir::new("./")))
   ServeDir::new("./")
 }
