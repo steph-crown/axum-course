@@ -3,7 +3,8 @@ use std::net::SocketAddr;
 use axum::{
   Router,
   extract::{Path, Query},
-  response::{Html, IntoResponse},
+  middleware,
+  response::{Html, IntoResponse, Response},
   routing::get,
 };
 use serde::Deserialize;
@@ -16,15 +17,21 @@ struct GetLoveParams {
 }
 
 mod error;
+mod utils;
 mod web;
-pub use self::error::{Error, Result};
+
+pub use self::{
+  error::{Error, Result},
+  utils::Logger,
+};
 
 #[tokio::main]
 async fn main() {
-  const PORT: u16 = 3000;
+  const PORT: u16 = 4000;
   let app = Router::new()
     .merge(routes_hello())
     .merge(web::routes_login::routes())
+    .layer(middleware::map_response(main_response_mapper))
     .fallback_service(routes_static());
 
   // region: --- Start server
@@ -68,6 +75,11 @@ async fn get_love_path(
   Html(format!(
     "<h1>Hello world, <b>nikafuckatibeyonce damn bro {user} {name}</b></h1>"
   ))
+}
+
+async fn main_response_mapper(res: Response) -> Response {
+  Logger::info("RES_MAPPER", "main_response_mapper");
+  res
 }
 
 fn routes_static() -> ServeDir {

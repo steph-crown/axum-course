@@ -2,7 +2,7 @@ use axum::{Json, Router, routing::post};
 use serde::Deserialize;
 use serde_json::{Value, json};
 
-use crate::{Error, Result};
+use crate::{Error, Logger, Result};
 
 #[derive(Debug, Deserialize)]
 struct LoginPayload {
@@ -11,7 +11,8 @@ struct LoginPayload {
 }
 
 async fn api_login(Json(payload): Json<LoginPayload>) -> Result<Json<Value>> {
-  println!("->> {:<12} - api_login", "HANDLER");
+  // println!("->> {:<12} - api_login", "HANDLER");
+  Logger::info("HANDLER", "api_login");
 
   // Todo: implement logic
   if payload.username != "steph" || payload.password != "fuck" {

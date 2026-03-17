@@ -3,7 +3,7 @@ use serde_json::json;
 
 #[tokio::test]
 async fn quick_dev() -> Result<()> {
-  const PORT: u16 = 3000;
+  const PORT: u16 = 4000;
 
   let hc = httpc_test::new_client(format!("http://localhost:{PORT}"))?;
   // hc.do_get("/hello/sexy?name=Folaashade")
