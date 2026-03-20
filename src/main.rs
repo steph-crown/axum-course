@@ -9,6 +9,7 @@ use axum::{
 };
 use serde::Deserialize;
 use tokio::net::TcpListener;
+use tower_cookies::{CookieManagerLayer, Cookies};
 use tower_http::services::ServeDir;
 
 #[derive(Debug, Deserialize)]
@@ -17,8 +18,11 @@ struct GetLoveParams {
 }
 
 mod error;
+mod model;
 mod utils;
 mod web;
+
+use crate::web::{AUTH_TOKEN_KEY, PORT};
 
 pub use self::{
   error::{Error, Result},
@@ -27,11 +31,11 @@ pub use self::{
 
 #[tokio::main]
 async fn main() {
-  const PORT: u16 = 4000;
   let app = Router::new()
     .merge(routes_hello())
     .merge(web::routes_login::routes())
     .layer(middleware::map_response(main_response_mapper))
+    .layer(CookieManagerLayer::new())
     .fallback_service(routes_static());
 
   // region: --- Start server
@@ -48,7 +52,7 @@ fn routes_hello() -> Router {
     .route("/hello/{name}", get(get_love_path))
 }
 
-async fn get_love(Query(params): Query<GetLoveParams>) -> impl IntoResponse {
+async fn get_love(cookies: Cookies, Query(params): Query<GetLoveParams>) -> impl IntoResponse {
   println!(
     "->> {:<12} - handler_get_love - \n {:<20} - {params:?}",
     "HANDLER", "QUERY PARAMS"
@@ -77,8 +81,10 @@ async fn get_love_path(
   ))
 }
 
-async fn main_response_mapper(res: Response) -> Response {
+async fn main_response_mapper(cookies: Cookies, res: Response) -> Response {
   Logger::info("RES_MAPPER", "main_response_mapper");
+  println!("FUCKKKKKKK: {:#?}", cookies.get(AUTH_TOKEN_KEY));
+
   res
 }
 
