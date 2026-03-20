@@ -36,11 +36,14 @@ pub use self::{
 async fn main() -> Result<()> {
   let mc = ModelController::new().await?;
 
+  let route_apis = web::routes_tickets::routes(mc.clone())
+    .route_layer(middleware::from_fn(web::mw_auth::mw_require_auth));
+
   let app = Router::new()
     .merge(routes_hello())
     .merge(web::routes_login::routes())
     .layer(middleware::map_response(main_response_mapper))
-    .nest("/api", web::routes_tickets::routes(mc.clone()))
+    .nest("/api", route_apis)
     .layer(CookieManagerLayer::new())
     .fallback_service(routes_static());
 
