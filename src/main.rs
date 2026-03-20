@@ -22,7 +22,10 @@ mod model;
 mod utils;
 mod web;
 
-use crate::web::{AUTH_TOKEN_KEY, PORT};
+use crate::{
+  model::ModelController,
+  web::{AUTH_TOKEN_KEY, PORT},
+};
 
 pub use self::{
   error::{Error, Result},
@@ -30,11 +33,14 @@ pub use self::{
 };
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<()> {
+  let mc = ModelController::new().await?;
+
   let app = Router::new()
     .merge(routes_hello())
     .merge(web::routes_login::routes())
     .layer(middleware::map_response(main_response_mapper))
+    .nest("/api", web::routes_tickets::routes(mc.clone()))
     .layer(CookieManagerLayer::new())
     .fallback_service(routes_static());
 
@@ -44,6 +50,8 @@ async fn main() {
   println!("Listening on port {PORT}...");
 
   axum::serve(listener, app).await.unwrap();
+
+  Ok(())
 }
 
 fn routes_hello() -> Router {

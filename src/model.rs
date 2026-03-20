@@ -11,8 +11,9 @@ pub struct Ticket {
   title: String,
 }
 
+#[derive(Deserialize)]
 pub struct TicketForCreate {
-  title: String,
+  pub title: String,
 }
 
 #[derive(Clone)]

@@ -40,9 +40,8 @@ async fn delete_ticket(mc: State<ModelController>, Path(id): Path<u64>) -> Resul
 }
 
 pub fn routes(mc: ModelController) -> Router {
-  let app_state = AppState { mc };
   Router::new()
-    .route("/api/tickets", post(create_ticket).get(list_tickets))
-    .route("/api/tickets/:id", delete(delete_ticket))
-    .with_state(app_state)
+    .route("/tickets", post(create_ticket).get(list_tickets))
+    .route("/tickets/{id}", delete(delete_ticket))
+    .with_state(mc)
 }
